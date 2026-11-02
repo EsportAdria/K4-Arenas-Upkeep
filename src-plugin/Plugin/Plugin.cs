@@ -17,7 +17,7 @@ using SwiftlyS2.Shared.SchemaDefinitions;
 
 namespace K4Arenas;
 
-[PluginMetadata(Id = "k4.arenas", Version = "1.1.4", Name = "K4 - Arenas", Author = "K4ryuu", Description = "Ladder type arena gamemode for Counter-Strike: 2 using SwiftlyS2 framework.")]
+[PluginMetadata(Id = "k4.arenas", Version = "1.1.5", Name = "K4 - Arenas", Author = "K4ryuu", Description = "Ladder type arena gamemode for Counter-Strike: 2 using SwiftlyS2 framework.")]
 public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 {
 	private const string ConfigFileName = "config.json";
@@ -457,6 +457,8 @@ public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 			var localizer = Core.Translation.GetPlayerLocalizer(player);
 			if (oldTeam > Team.Spectator && newTeam == Team.Spectator && !arenaPlayer.IsAfk)
 			{
+				// Leave the arena roster before SetAfk clears CurrentArena.
+				_arenaManager.RemovePlayerFromArena(player);
 				arenaPlayer.SetAfk();
 				player.SendChat($"{localizer["k4.general.prefix"]} {localizer["k4.chat.afk_enabled", Config.CurrentValue.Commands.AfkCommands.FirstOrDefault() ?? "afk"]}");
 				UpdatePlayerClantag(arenaPlayer);
@@ -741,6 +743,9 @@ public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 		}
 		else
 		{
+			// Leave the arena roster first: SetAfk clears CurrentArena, and a stale
+			// roster entry would make warmup pair the player with themselves later.
+			_arenaManager.RemovePlayerFromArena(player);
 			arenaPlayer.SetAfk();
 			player.ChangeTeam(Team.Spectator);
 			player.SendChat($"{localizer["k4.general.prefix"]} {localizer["k4.chat.afk_enabled", Config.CurrentValue.Commands.AfkCommands.FirstOrDefault() ?? "afk"]}");

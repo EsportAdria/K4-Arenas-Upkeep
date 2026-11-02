@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.1.5] - 2026-11-02 -
+
+### Fixed
+
+- **Warmup opponent was the player themselves**: going AFK with `!afk`, or by moving to spectator, now takes the player out of their arena. Before, a player alone in a warmup arena who typed `!afk` twice could be put in that same arena as their own opponent.
+- **Players stuck in spectator after a map change**: players set back to waiting on map change are now put in the arena queue. Before, players a warmup arena had taken out of the queue stayed in spectator until they reconnected or used `!queue`.
+- **AFK kept across a map change**: a player who went AFK stays AFK on the next map. Before, a map change quietly cleared it.
+
 ## [v1.1.4] - 2026-11-02 -
 
 ### Fixed
