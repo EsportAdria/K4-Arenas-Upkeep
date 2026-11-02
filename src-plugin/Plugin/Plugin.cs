@@ -17,7 +17,7 @@ using SwiftlyS2.Shared.SchemaDefinitions;
 
 namespace K4Arenas;
 
-[PluginMetadata(Id = "k4.arenas", Version = "1.1.3", Name = "K4 - Arenas", Author = "K4ryuu", Description = "Ladder type arena gamemode for Counter-Strike: 2 using SwiftlyS2 framework.")]
+[PluginMetadata(Id = "k4.arenas", Version = "1.1.4", Name = "K4 - Arenas", Author = "K4ryuu", Description = "Ladder type arena gamemode for Counter-Strike: 2 using SwiftlyS2 framework.")]
 public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 {
 	private const string ConfigFileName = "config.json";
@@ -464,6 +464,7 @@ public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 			else if (oldTeam == Team.Spectator && newTeam > Team.Spectator && arenaPlayer.IsAfk)
 			{
 				arenaPlayer.SetWaiting();
+				_playerManager.EnqueueWaiting(arenaPlayer);
 				player.SendChat($"{localizer["k4.general.prefix"]} {localizer["k4.chat.afk_disabled"]}");
 				UpdatePlayerClantag(arenaPlayer);
 			}
@@ -685,6 +686,8 @@ public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 		switch (arenaPlayer.State)
 		{
 			case PlayerState.Waiting:
+				// A waiting player missing from the queue would never be assigned.
+				_playerManager.EnqueueWaiting(arenaPlayer);
 				var position = _arenaManager.GetQueuePosition(arenaPlayer);
 				if (position > 0)
 				{
@@ -729,7 +732,10 @@ public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 		var localizer = Core.Translation.GetPlayerLocalizer(player);
 		if (arenaPlayer.IsAfk)
 		{
+			// The round-end rebuild leaves AFK players out of the queue, and
+			// assignment only reads the queue, so they must be put back here.
 			arenaPlayer.SetWaiting();
+			_playerManager.EnqueueWaiting(arenaPlayer);
 			player.SendChat($"{localizer["k4.general.prefix"]} {localizer["k4.chat.afk_disabled"]}");
 			UpdatePlayerClantag(arenaPlayer);
 		}

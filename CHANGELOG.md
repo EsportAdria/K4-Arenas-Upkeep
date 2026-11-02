@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.1.4] - 2026-11-02 -
+
+### Fixed
+
+- **Players stuck in spectator after AFK**: turning AFK off with `!afk`, or by joining a team, now puts the player back in the arena queue. Before, they stayed in spectator every round until they reconnected, and `!queue` said they would join next round.
+  - `!queue` also puts a waiting player who is missing from the queue back into it.
+
 ## [v1.1.3] - 2026-02-11 -
 
 ### Fixed
